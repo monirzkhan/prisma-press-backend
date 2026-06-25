@@ -2,6 +2,7 @@ import bcrypt from "bcrypt";
 import { prisma } from "../../lib/prisma";
 import config from "../../config";
 import { IUser } from "./user.interface";
+import { create } from "node:domain";
 
 
 const registerUserIntoDB = async (payload: IUser) => {
@@ -25,16 +26,21 @@ const registerUserIntoDB = async (payload: IUser) => {
             name,
             email,
             password: hashedPassword,
+            profile:{
+                create:{
+                    profilePhoto
+                }
+            }
 
         }
     })
 
-    await prisma.profile.create({
-        data: {
-            userId: createdUser.id,
-            profilePhoto
-        }
-    })
+    // await prisma.profile.create({
+    //     data: {
+    //         userId: createdUser.id,
+    //         profilePhoto
+    //     }
+    // })
 
     const user = await prisma.user.findUnique({
         where: {
@@ -51,6 +57,24 @@ const registerUserIntoDB = async (payload: IUser) => {
     return user;
 }
 
+const getMyProfilefromDB = async (userId: string) => {
+    const user = await prisma.user.findUniqueOrThrow({
+        where: {
+            id: userId
+        },
+        omit: {
+            password: true
+        },
+        include: {
+            profile: true
+        }
+
+
+    })
+    return user;
+
+}
 export const userService = {
-    registerUserIntoDB
+    registerUserIntoDB,
+    getMyProfilefromDB
 }

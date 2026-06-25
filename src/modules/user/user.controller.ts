@@ -1,9 +1,13 @@
 import { NextFunction, request, Request, RequestHandler, Response } from "express";
 import httpStatus from "http-status";
+import jwt from 'jsonwebtoken'
 
 import { userService } from "./user.service";
 import { sendResponse } from "../../utilities/sendResponse";
 import { catchAsync } from "../../utilities/catchAsync";
+import config from "../../config";
+import { jwtUtils } from "../../utilities/jwt";
+
 
 
 // const catchAsync = (fn: RequestHandler) => {
@@ -69,9 +73,45 @@ const registerUser = catchAsync(async (req: Request, res: Response, next: NextFu
 })
 
 
-const getMyProfile = async (req: Request, res: Response) => {
-    const payload = req.body
-}
+const getMyProfile = catchAsync( async (req: Request, res: Response, next: NextFunction) => {
+
+    const {accessToken} = req.cookies;
+    // console.log(req.user, "user request");
+
+    const verifiedToken = jwtUtils.verifyToken(accessToken, config.jwt_access_secret)
+
+    const profile = await userService.getMyProfilefromDB(verifiedToken.id);
+
+
+    sendResponse(res, {
+        success: true,
+        statusCode: httpStatus.OK,
+        message: "User profile fetched successfully",
+        data: { profile }
+    })
+})
+
+// const getMyProfile = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+
+//     const { accessToken } = req.cookies;
+
+//     const verifiedToken = jwtUtils.varifyToken(accessToken, config.jwt_access_secret);
+
+//      if(typeof verifiedToken === "string"){
+//          throw new Error(verifiedToken);
+//      }
+
+//     const profile= await userService.getMyProfilefromDB(verifiedToken.id);
+
+//     sendResponse(res,{
+//         success: true,
+//         message: "User profile fetched successfully",
+//         statusCode: httpStatus.OK,
+//         data:{profile}
+//     })
+
+
+// })
 
 export const userController = {
     registerUser,
