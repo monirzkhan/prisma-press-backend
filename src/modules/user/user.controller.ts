@@ -19,11 +19,11 @@ const regiterUser = async (req: Request, res: Response) => {
         //     data: { user }
         // });
 
-        sendResponse(res,{
+        sendResponse(res, {
             message: 'User created successfully',
             success: true,
             statusCode: httpStatus.CREATED,
-            data: { user }  
+            data: { user }
         })
     } catch (error: any) {
         console.log(error);
@@ -31,12 +31,18 @@ const regiterUser = async (req: Request, res: Response) => {
             message: error.message || 'Something went wrong',
             success: false,
             statusCode: httpStatus.INTERNAL_SERVER_ERROR,
-            data:{}
+            data: {}
         });
     }
 
 }
 
+
+const getMyProfile = async (req: Request, res: Response) => {
+    const payload = req.body
+}
+
 export const userController = {
-    regiterUser
+    regiterUser,
+    getMyProfile
 }
