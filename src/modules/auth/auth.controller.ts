@@ -2,9 +2,10 @@ import { NextFunction, Request, Response } from "express";
 import { authservice } from "./auth.service";
 import { sendResponse } from "../../utilities/sendResponse";
 import httpStatus from "http-status";
+import { catchAsync } from "../../utilities/catchAsync";
 
 
-const loginUser = async (req: Request, res: Response, next: NextFunction) => {
+const loginUser = catchAsync (async (req: Request, res: Response, next: NextFunction) => {
     const payload = req.body;
 
     const { accessToken, refreshToken } = await authservice.loginUserFromDB(payload);
@@ -32,7 +33,7 @@ const loginUser = async (req: Request, res: Response, next: NextFunction) => {
         }
     })
 
-}
+})
 
 export const authController = {
     loginUser
