@@ -40,9 +40,9 @@ export const auth = (...requiredRole: Role[]) => {
         const verifiedToken = jwtUtils.verifyToken(token, config.jwt_access_secret);
         // console.log(verifiedToken);
 
-        // if(verifiedToken){
-        //     throw new Error("Invalid Token");
-        // }
+        if(verifiedToken.success){
+            throw new Error("Invalid Token");
+        }
 
 
 

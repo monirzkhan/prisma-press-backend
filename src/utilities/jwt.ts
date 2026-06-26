@@ -19,11 +19,7 @@ const verifyToken = (token: string, secret: string): ITokenPayload => {
         return verifiedToken;
     } catch (error: any) {
         console.log("Verify Token Failed", error);
-        return {
-            success: false,
-            id: "",
-            error : error.message
-        }
+        throw new Error(error.message);
     }
 }
 
