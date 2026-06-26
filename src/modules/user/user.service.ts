@@ -6,7 +6,7 @@ import { create } from "node:domain";
 
 
 const registerUserIntoDB = async (payload: IUser) => {
-    const { name, email, password, profilePhoto,bio } = payload;
+    const { name, email, password, profilePhoto, bio, role } = payload;
 
     const isUserExists = await prisma.user.findUnique({
         where: {
@@ -25,9 +25,10 @@ const registerUserIntoDB = async (payload: IUser) => {
         data: {
             name,
             email,
+            role,
             password: hashedPassword,
-            profile:{
-                create:{
+            profile: {
+                create: {
                     profilePhoto,
                     bio
                 }
@@ -55,6 +56,7 @@ const registerUserIntoDB = async (payload: IUser) => {
             profile: true
         }
     })
+    
     return user;
 }
 
