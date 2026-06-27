@@ -27,25 +27,18 @@ export const auth = (...requiredRole: Role[]) => {
         // console.log(req.cookies)
         // const { accessToken } = req.cookies;
 
-        const token = req.cookies.accessToken? req.cookies.accessToken:
-        req.headers.authorization?.startsWith('Bearer ')?
-        req.headers.authorization?.split(' ')[1]
-        : req.headers.authorization;
-
+        const tokenFromCookie = req.cookies?.accessToken;
+        const authHeader = req.headers.authorization;
+        const tokenFromHeader = authHeader?.startsWith('Bearer ')
+            ? authHeader.split(' ')[1]
+            : undefined;
+        const token = tokenFromCookie || tokenFromHeader || authHeader;
 
         if (!token) {
-           throw new Error('You are not logged in. Please log in to access this resource.')
+            throw new Error('You are not logged in. Please log in to access this resource.')
         }
 
         const verifiedToken = jwtUtils.verifyToken(token, config.jwt_access_secret);
-        // console.log(verifiedToken);
-
-        if(verifiedToken.success){
-            throw new Error("Invalid Token");
-        }
-
-
-
         const { email, name, id, role } = verifiedToken;
 
 
