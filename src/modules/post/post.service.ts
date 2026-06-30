@@ -1,4 +1,4 @@
-import { PostStatus } from "../../../generated/prisma/enums"
+import { CommentStatus, PostStatus } from "../../../generated/prisma/enums"
 import { prisma } from "../../lib/prisma"
 import { ICreatePost } from "./post.interface"
 
@@ -61,17 +61,96 @@ const getMyPost = async (authorId: string) => {
 }
 
 const getSinglePost=async(postid: string)=>{
-    const result= await prisma.post.findUniqueOrThrow({
-        where:{
-            id: postid
-        },
-        include:{
-            author: true
+
+    // await prisma.post.update({
+    //     where:{
+    //         id: postid
+    //     },
+    //     data:{
+    //         views:{
+    //             increment: 1
+    //         }
+    //     }
+    // });
+
+    // throw new Error('Fake error');
+
+    // const result= await prisma.post.findUniqueOrThrow({
+    //     where:{
+    //         id: postid
+    //     },
+        
+    //     include:{
+    //         author: {
+    //             omit:{
+    //                 password: true
+    //             }
+    //         },
+           
+    //         comments: {
+    //             where:{
+    //                 status: CommentStatus.APPROVED
+    //             },
+    //             orderBy:{
+    //                 createdAt:"desc"
+    //             }
+    //         },
+            
+    //         _count:{
+    //             select:{
+    //                 comments: true
+    //             }
+    //         }
+    //     }
+
+    // })
+
+    // return result
+
+    const transactionResult= await prisma.$transaction(
+        async(tx)=>{
+            await tx.post.update({
+                where: {
+                    id: postid
+                },
+                data:{
+                    views:{
+                        increment: 1
+                    }
+                }
+            })
+            // throw new Error('Fake error');
+
+            const result= await tx.post.findUniqueOrThrow({
+                where:{
+                    id: postid
+                },
+                include:{
+                    author:{
+                        omit:{
+                            password: true
+                        }
+                    },
+                    comments:{
+                        where:{
+                            status:"APPROVED"
+                        },
+                        orderBy:{
+                            createdAt: "desc"
+                        }
+                    },
+                    _count:{
+                        select:{
+                            comments:true
+                        }
+                    }
+                }
+
+            })
+            return result
         }
-
-    })
-
-    return result
+    )
+    return transactionResult
 }
 
 export const postService = {
