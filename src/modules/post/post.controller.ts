@@ -4,6 +4,7 @@ import { postService } from "./post.service";
 import { send } from "process";
 import { sendResponse } from "../../utilities/sendResponse";
 import HttpStatus from "http-status";
+import { prisma } from "../../lib/prisma";
 
 const getAllPosts = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     // res.send('Hi from Post Controller')
@@ -39,7 +40,7 @@ const createPost = catchAsync(async (req: Request, res: Response, next: NextFunc
 
 const getStats = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
 
-    const result= await postService.getPostsStats();
+    const result = await postService.getPostsStats();
 
     sendResponse(res, {
         success: true,
@@ -54,7 +55,7 @@ const getMyPosts = catchAsync(async (req: Request, res: Response, next: NextFunc
     const authorId = req.user?.id;
 
     const result = await postService.getMyPost(authorId as string)
-    
+
     sendResponse(res, {
         success: true,
         statusCode: HttpStatus.OK,
@@ -65,13 +66,13 @@ const getMyPosts = catchAsync(async (req: Request, res: Response, next: NextFunc
 })
 const getSinglePost = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
 
-    const postId= req.params.postId;
+    const postId = req.params.postId;
 
-    if(!postId){
+    if (!postId) {
         throw new Error("PostId is required in Params")
     }
 
-    const result = await postService.getSinglePost(postId as string) 
+    const result = await postService.getSinglePost(postId as string)
     sendResponse(res, {
         success: true,
         statusCode: HttpStatus.OK,
@@ -81,6 +82,23 @@ const getSinglePost = catchAsync(async (req: Request, res: Response, next: NextF
 
 })
 const updatePost = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+
+    const postId = req.params.postId;
+    if (!postId) {
+        throw new Error("Post Id Required In Params")
+    }
+    const authorId = req.user?.id;
+    const isAdmin = req.user?.role === "ADMIN";
+    const payload = req.body;
+
+    const result = await postService.updatePost(postId as string, payload, authorId as string , isAdmin)
+
+    sendResponse(res, {
+        success: true,
+        statusCode: HttpStatus.OK,
+        message: "Post Updated Successfully",
+        data: { result }
+    })
 
 })
 const deletePost = catchAsync(async (req: Request, res: Response, next: NextFunction) => {

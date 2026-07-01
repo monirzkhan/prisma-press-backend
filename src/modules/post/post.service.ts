@@ -1,6 +1,6 @@
 import { CommentStatus, PostStatus } from "../../../generated/prisma/enums"
 import { prisma } from "../../lib/prisma"
-import { ICreatePost } from "./post.interface"
+import { ICreatePost, IUpdatePost } from "./post.interface"
 
 const gettAllPostsfromB = async () => {
     const posts = await prisma.post.findMany({
@@ -120,12 +120,12 @@ const getPostsStats = async () => {
                         }
                     }),
                     await tx.post.aggregate({
-                        _sum:{
+                        _sum: {
                             views: true
                         }
                     })
                 ])
-                   return {
+            return {
                 totalPosts,
                 totalPublishedPosts,
                 totalArchivedPosts,
@@ -265,10 +265,45 @@ const getSinglePost = async (postid: string) => {
     return transactionResult
 }
 
+const updatePost = async (postId: string, payload: IUpdatePost, authorId: string, isAdmin: boolean) => {
+
+    const post = await prisma.post.findUniqueOrThrow({
+        where: {
+            id: postId
+        }
+    })
+
+    if (!isAdmin && post.authorId !== authorId) {
+        throw new Error("You are not the owner of this post!")
+    }
+
+    const result = await prisma.post.update({
+        where: {
+            id: postId
+        },
+        data: payload,
+        include: {
+            author: {
+                omit: {
+                    password: true
+                }
+            },
+            comments: true
+        }
+
+    })
+
+    return result;
+
+}
+
+
+
 export const postService = {
     gettAllPostsfromB,
     createPostIntoDB,
     getPostsStats,
     getMyPost,
-    getSinglePost
+    getSinglePost,
+    updatePost
 } 
