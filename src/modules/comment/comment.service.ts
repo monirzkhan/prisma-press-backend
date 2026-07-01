@@ -1,5 +1,5 @@
 import { prisma } from "../../lib/prisma";
-import { ICreateComment } from "./comment.interface";
+import { ICreateComment, IUpdateComment } from "./comment.interface";
 
 const createComment = async (payload: ICreateComment, userId: string) => {
 
@@ -18,15 +18,15 @@ const getCommentByAuthorId = async (authorId: string) => {
 
     const result = await prisma.comment.findMany({
 
-        where:{
+        where: {
             authorId
         },
-        orderBy:{
-            createdAt:"desc"
+        orderBy: {
+            createdAt: "desc"
         },
-        include:{
-            post:{
-                select:{
+        include: {
+            post: {
+                select: {
                     id: true,
                     title: true
                 }
@@ -41,15 +41,15 @@ const getCommentByPostId = async (postId: string) => {
 
     const result = await prisma.comment.findMany({
 
-        where:{
+        where: {
             postId
         },
-        orderBy:{
-            createdAt:"desc"
+        orderBy: {
+            createdAt: "desc"
         },
-        include:{
-            post:{
-                select:{
+        include: {
+            post: {
+                select: {
                     id: true,
                     title: true
                 }
@@ -60,9 +60,41 @@ const getCommentByPostId = async (postId: string) => {
     return result
 
 }
+const updateComment = async (commentId: string, isAdmin: boolean, authorId: string, data: IUpdateComment) => {
+
+    const commentData = await prisma.comment.findUniqueOrThrow({
+        where: {
+            id: commentId,
+            authorId
+        },
+        select:{
+            id: true
+        }
+
+    })
+
+    if(!commentData){
+        throw new Error('Comments not Avaiable')
+    }
+
+    if (!isAdmin &&  !authorId) {
+        throw new Error("You are not the owner of this post!")
+    }
+    
+    const result= await prisma.comment.update({
+        where:{
+            id: commentId,
+            authorId
+        },
+        data 
+    })
+    return result
+
+}
 
 export const commentService = {
     createComment,
     getCommentByAuthorId,
-    getCommentByPostId
+    getCommentByPostId,
+    updateComment
 } 

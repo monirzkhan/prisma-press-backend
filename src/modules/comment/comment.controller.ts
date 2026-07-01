@@ -19,11 +19,11 @@ const createComment = catchAsync(async (req: Request, res: Response, next: NextF
     })
 })
 const getCommentByAuthorId = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    
+
 
     const authorId = req.params.authorId;
 
-    const result = await commentService.getCommentByAuthorId( authorId as string);
+    const result = await commentService.getCommentByAuthorId(authorId as string);
 
     sendResponse(res, {
         success: true,
@@ -33,11 +33,11 @@ const getCommentByAuthorId = catchAsync(async (req: Request, res: Response, next
     })
 })
 const getCommentByPostId = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    
+
 
     const postid = req.params.postId;
 
-    const result = await commentService.getCommentByPostId( postid as string);
+    const result = await commentService.getCommentByPostId(postid as string);
 
     sendResponse(res, {
         success: true,
@@ -46,10 +46,29 @@ const getCommentByPostId = catchAsync(async (req: Request, res: Response, next: 
         data: { result }
     })
 })
+const updateComment = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+
+
+    const { commentsId } = req.params;
+    // console.log(req.params);
+    const isAdmin = req.user?.role === "ADMIN";
+    const authorId = req.user?.id;
+    const payload = req.body
+
+    const result = await commentService.updateComment(commentsId as string, isAdmin, authorId as string, payload);
+
+    sendResponse(res, {
+        success: true,
+        statusCode: HttpStatus.OK,
+        message: "Comment updated Successfully",
+        data: { result }
+    })
+})
 
 
 export const commentController = {
     createComment,
     getCommentByAuthorId,
-    getCommentByPostId
+    getCommentByPostId,
+    updateComment
 } 

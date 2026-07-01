@@ -7,5 +7,6 @@ const router = Router();
 router.post('/', auth('ADMIN', 'AUTHOR', "USER"),commentController.createComment)
 router.get('/author/:authorId', commentController.getCommentByAuthorId)
 router.get('/:postId', commentController.getCommentByPostId)
+router.patch('/:commentsId', auth('ADMIN', 'AUTHOR', "USER"),commentController.updateComment)
 
 export const commentRoutes = router;
