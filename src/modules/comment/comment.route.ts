@@ -5,7 +5,7 @@ import { auth } from "../../middleware/auth";
 const router = Router();
 
 router.post('/', auth('ADMIN', 'AUTHOR', "USER"),commentController.createComment)
-// router.get('/author/:authorId', )
-// router.get('/comments/:commentId')
+router.get('/author/:authorId', commentController.getCommentByAuthorId)
+router.get('/:postId', commentController.getCommentByPostId)
 
 export const commentRoutes = router;

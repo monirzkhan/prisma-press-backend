@@ -8,6 +8,7 @@ import { authRoutes } from "./modules/auth/auth.route";
 import { postRoutes } from "./modules/post/post.route";
 import { commentRoutes } from "./modules/comment/comment.route";
 
+
 const app: Application = express();
 
 app.use(cors({
