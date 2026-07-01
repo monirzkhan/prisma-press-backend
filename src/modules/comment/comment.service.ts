@@ -91,10 +91,41 @@ const updateComment = async (commentId: string, isAdmin: boolean, authorId: stri
     return result
 
 }
+const DeleteComment = async (commentId: string, isAdmin: boolean, authorId: string) => {
+
+    const commentData = await prisma.comment.findUniqueOrThrow({
+        where: {
+            id: commentId,
+            authorId
+        },
+        select:{
+            id: true
+        }
+
+    })
+
+    if(!commentData){
+        throw new Error('Comments not Avaiable')
+    }
+
+    if (!isAdmin &&  !authorId) {
+        throw new Error("You are not the owner of this post!")
+    }
+    
+    const result= await prisma.comment.delete({
+        where:{
+            id: commentData.id
+        }
+    })
+    return result
+
+}
 
 export const commentService = {
     createComment,
     getCommentByAuthorId,
     getCommentByPostId,
-    updateComment
+    updateComment,
+    DeleteComment
+    
 } 
