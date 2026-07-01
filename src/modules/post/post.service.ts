@@ -296,6 +296,25 @@ const updatePost = async (postId: string, payload: IUpdatePost, authorId: string
     return result;
 
 }
+const deletePost = async (postId: string, authorId: string, isAdmin: boolean) => {
+
+    const post = await prisma.post.findUniqueOrThrow({
+        where: {
+            id: postId
+        }
+    })
+
+    if (!isAdmin && post.authorId !== authorId) {
+        throw new Error("You are not the owner of this post!")
+    }
+
+    await prisma.post.delete({
+        where: {
+            id: postId
+        }
+    })
+
+}
 
 
 
@@ -305,5 +324,6 @@ export const postService = {
     getPostsStats,
     getMyPost,
     getSinglePost,
-    updatePost
+    updatePost,
+    deletePost
 } 
