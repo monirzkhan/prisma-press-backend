@@ -7,6 +7,10 @@ export interface ICreateComment {
 }
 
 export interface IUpdateComment {
-     content ?: string, 
-    status ?: CommentStatus
+    content?: string,
+    status?: CommentStatus
+}
+export interface IModerateComment {
+
+    status?: CommentStatus
 }

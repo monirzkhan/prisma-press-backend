@@ -1,5 +1,5 @@
 import { prisma } from "../../lib/prisma";
-import { ICreateComment, IUpdateComment } from "./comment.interface";
+import { ICreateComment, IModerateComment, IUpdateComment } from "./comment.interface";
 
 const createComment = async (payload: ICreateComment, userId: string) => {
 
@@ -67,26 +67,26 @@ const updateComment = async (commentId: string, isAdmin: boolean, authorId: stri
             id: commentId,
             authorId
         },
-        select:{
+        select: {
             id: true
         }
 
     })
 
-    if(!commentData){
+    if (!commentData) {
         throw new Error('Comments not Avaiable')
     }
 
-    if (!isAdmin &&  !authorId) {
+    if (!isAdmin && !authorId) {
         throw new Error("You are not the owner of this post!")
     }
-    
-    const result= await prisma.comment.update({
-        where:{
+
+    const result = await prisma.comment.update({
+        where: {
             id: commentId,
             authorId
         },
-        data 
+        data
     })
     return result
 
@@ -98,24 +98,55 @@ const DeleteComment = async (commentId: string, isAdmin: boolean, authorId: stri
             id: commentId,
             authorId
         },
-        select:{
+        select: {
             id: true
         }
 
     })
 
-    if(!commentData){
+    if (!commentData) {
         throw new Error('Comments not Avaiable')
     }
 
-    if (!isAdmin &&  !authorId) {
+    if (!isAdmin && !authorId) {
         throw new Error("You are not the owner of this post!")
     }
-    
-    const result= await prisma.comment.delete({
-        where:{
+
+    const result = await prisma.comment.delete({
+        where: {
             id: commentData.id
         }
+    })
+    return result
+
+}
+const moderateComment = async (commentId: string, isAdmin: boolean, data: IModerateComment) => {
+
+    const commentData = await prisma.comment.findUniqueOrThrow({
+        where: {
+            id: commentId,
+
+        },
+        select: {
+            id: true,
+            status: true
+        }
+
+    })
+
+    if (commentData.status === data.status) {
+        throw new Error(`your provided status ${data.status} is already up tp date`)
+    }
+
+    if (!isAdmin) {
+        throw new Error("You are not Allowed for this operation!")
+    }
+
+    const result = await prisma.comment.update({
+        where: {
+            id: commentId
+        },
+        data
     })
     return result
 
@@ -126,6 +157,7 @@ export const commentService = {
     getCommentByAuthorId,
     getCommentByPostId,
     updateComment,
-    DeleteComment
-    
+    DeleteComment,
+    moderateComment
+
 } 
